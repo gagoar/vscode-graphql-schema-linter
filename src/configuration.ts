@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { headerCase } from 'change-case';
+import { snakeCase, pascalCase } from 'change-case';
 import { workspace } from 'vscode';
 import { Rule } from 'graphql-schema-linter/lib/validator'
 
@@ -7,31 +7,29 @@ import { Rule } from 'graphql-schema-linter/lib/validator'
 const GRAPHQL_SCHEMA_KEY = 'graphql-schema-linter';
 
 const RULES = [
-  "lint-directive",
   "enum-values-sorted-alphabetically",
   "enum-values-all-caps",
   "types-are-capitalized",
-  "field-name-rules",
   "relay-connection-types-spec",
   "types-have-descriptions",
-  "relay-page-info-spec",
 ];
 export async function getLinters(): Promise<[string, Rule][]> {
   const linterNames = getConfiguration();
 
-  const linters = await Promise.all(linterNames.map<Rule>(linterName => require(`graphql-schema-linter/lib/rules/${headerCase(linterName)}`)))
+  const linters = await Promise.all(linterNames.map<Record<string, Rule>>(linterName => require(`graphql-schema-linter/lib/rules/${snakeCase(linterName)}`)))
 
-  return linters.map((fn, index) => [linterNames[index], fn]);
+  return linters.map((fn, index) => [linterNames[index], fn[pascalCase(linterNames[index])]]);
 };
 
 export function getConfiguration(): string[] {
-  const rootPath = workspace.rootPath;
+  const workspaceFolders = workspace.workspaceFolders;
 
-  if (!rootPath) {
+  if (!workspaceFolders) {
     return RULES;
   } else {
     try {
-      const packageJson = require(join(rootPath, 'package.json'));
+      const { uri } = workspaceFolders[0]
+      const packageJson = require(join(uri.path, 'package.json'));
 
       if (GRAPHQL_SCHEMA_KEY in packageJson) {
         return packageJson[GRAPHQL_SCHEMA_KEY] as string[];
@@ -40,7 +38,7 @@ export function getConfiguration(): string[] {
       }
 
     } catch (e) {
-      throw new Error(`can not find key on package.json for project. looking in ${rootPath}`);
+      throw new Error(`can not find key on package.json for project. looking in ${JSON.stringify({ workspaceFolders })}`);
     }
   }
 

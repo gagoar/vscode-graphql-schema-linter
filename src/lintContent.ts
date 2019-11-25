@@ -1,7 +1,5 @@
 import { GraphQLError, ValidationContext, Visitor, ASTKindToNode } from 'graphql';
-import { TypesHaveDescriptions } from 'graphql-schema-linter/lib/rules/types_have_descriptions';
-import { FieldsAreCamelCased } from 'graphql-schema-linter/lib/rules/fields_are_camel_cased';
-import { Rule } from 'graphql-schema-linter/lib/validator'
+import { Rule, ValidationError } from 'graphql-schema-linter/lib/validator'
 import { validateSchemaDefinition } from 'graphql-schema-linter/lib/validator';
 import { Configuration } from 'graphql-schema-linter/lib/configuration';
 import { TextEditor, Range, DecorationOptions } from 'vscode';
@@ -18,19 +16,19 @@ const addedLength = defaultQuery.length;
 export function lintContent({ linters, content, activeEditor }: LintContent): DecorationOptions[] {
   const schemaString = `${defaultQuery}${content}`;
   const linterFns = linters.map(([, linter]) => linter);
-  const errors: GraphQLError[] = validateSchemaDefinition(schemaString, linterFns, new Configuration({}, null));
-
+  const configuration = new Configuration({}, null);
+  const errors = validateSchemaDefinition(schemaString, linterFns, configuration);
   const decorationOptions = errors.map((error) => {
     // we add more characters with the defaultQuery so we should subtract it every time we try to find out string locations. 
-    const start = error.nodes![0].loc!.start - addedLength;
+    const start = error.nodes![0].loc!.start > 0 ? error.nodes![0].loc!.start - addedLength : 0;
     // we add more characters with the defaultQuery so we should subtract it every time we try to find out string locations. 
-    const end = error.nodes![0].loc!.end - addedLength;
+    const end = error.nodes![0].loc!.end > 0 ? error.nodes![0].loc!.end - addedLength : 0;
 
     const startPos = activeEditor.document.positionAt(start);
     const endPos = activeEditor.document.positionAt(end);
     return {
       'range': new Range(startPos, endPos),
-      'hoverMessage': error.message
+      'hoverMessage': `${error.message}[${error.ruleName}]`
     }
   })
   return decorationOptions;

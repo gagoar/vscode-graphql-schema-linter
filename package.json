@@ -1,13 +1,13 @@
 {
-  "name": "graphql-schema-linter-extension",
-  "displayName": "graphql-schema-linter-extension",
-  "description": "graphql-schema-linter-extension",
+  "name": "vscode-graphql-schema-linter",
+  "displayName": "vscode-graphql-schema-linter",
+  "description": "vscode-graphql-schema-linter",
   "version": "0.0.1",
   "license": "MIT",
   "publisher": "gagoar",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gagoar/graphql-schema-linter-extension"
+    "url": "https://github.com/gagoar/vscode-graphql-schema-linter"
   },
   "engines": {
     "vscode": "^1.35.0"

@@ -21,11 +21,12 @@ declare module 'graphql-schema-linter-extras/lib/lint-directive' {
 declare module 'graphql-schema-linter/lib/validator' {
   import { ValidationContext, ASTKindToNode, Visitor, GraphQLError } from 'graphql';
   export type Rule = (context: ValidationContext) => Visitor<ASTKindToNode>;
+  export type ValidationError = { ruleName: string } & GraphQLError;
   export function validateSchemaDefinition(
     schemaDefinition: string,
     rules: Rule[],
     configuration: Object
-  ): GraphQLError[];
+  ): ValidationError[];
 }
 
 declare module 'graphql-schema-linter/lib/configuration' {

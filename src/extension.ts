@@ -7,6 +7,7 @@ import { lintContent } from './lintContent';
 export async function activate(context: vscode.ExtensionContext) {
 	let activeEditor = vscode.window.activeTextEditor;
 	let timeout: NodeJS.Timer | undefined = undefined;
+	const linters = await getLinters();
 	const decorationType = vscode.window.createTextEditorDecorationType(decorationTypeOptions);
 
 	if (activeEditor) {
@@ -39,9 +40,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 		const content = activeEditor.document.getText();
-
-		debugger
-		const linters = await getLinters();
 
 		const rangesToDecorate = lintContent({ content, linters, activeEditor });
 
