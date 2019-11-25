@@ -1,0 +1,49 @@
+{
+  "name": "graphql-schema-linter-extension",
+  "displayName": "graphql-schema-linter-extension",
+  "description": "graphql-schema-linter-extension",
+  "version": "0.0.1",
+  "license": "MIT",
+  "publisher": "gagoar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gagoar/graphql-schema-linter-extension"
+  },
+  "engines": {
+    "vscode": "^1.35.0"
+  },
+  "categories": [
+    "Linters"
+  ],
+  "icon": "icon.png",
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.graphql-schema-linter",
+        "title": "Graphql Schema Linter"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^10.12.21",
+    "change-case": "^3.1.0",
+    "graphql": "^14.5.8",
+    "graphql-schema-linter": "^0.2.2",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.1",
+    "vscode": "^1.1.28"
+  },
+  "dependencies": {}
+}
