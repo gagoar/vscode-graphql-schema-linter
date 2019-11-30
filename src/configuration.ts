@@ -1,46 +1,21 @@
-import { join } from 'path';
-import { snakeCase, pascalCase } from 'change-case';
 import { workspace } from 'vscode';
-import { Rule } from 'graphql-schema-linter/lib/validator'
+import { Configuration } from 'graphql-schema-linter/lib/configuration';
 
 
-const GRAPHQL_SCHEMA_KEY = 'graphql-schema-linter';
+export type schemaLinterConfiguration = () => Configuration;
 
-const RULES = [
-  "enum-values-sorted-alphabetically",
-  "enum-values-all-caps",
-  "types-are-capitalized",
-  "relay-connection-types-spec",
-  "types-have-descriptions",
-];
-export async function getLinters(): Promise<[string, Rule][]> {
-  const linterNames = getConfiguration();
-
-  const linters = await Promise.all(linterNames.map<Record<string, Rule>>(linterName => require(`graphql-schema-linter/lib/rules/${snakeCase(linterName)}`)))
-
-  return linters.map((fn, index) => [linterNames[index], fn[pascalCase(linterNames[index])]]);
-};
-
-export function getConfiguration(): string[] {
+export function schemaLinterConfiguration(): Configuration {
   const workspaceFolders = workspace.workspaceFolders;
 
-  if (!workspaceFolders) {
-    return RULES;
-  } else {
-    try {
-      const { uri } = workspaceFolders[0]
-      const packageJson = require(join(uri.path, 'package.json'));
+  let configDirectory: string | undefined = undefined;
 
-      if (GRAPHQL_SCHEMA_KEY in packageJson) {
-        return packageJson[GRAPHQL_SCHEMA_KEY] as string[];
-      } else {
-        return RULES;
-      }
+  if (workspaceFolders) {
 
-    } catch (e) {
-      throw new Error(`can not find key on package.json for project. looking in ${JSON.stringify({ workspaceFolders })}`);
-    }
+    const { uri } = workspaceFolders[0]
+
+    configDirectory = uri.path;
+
+    console.log('configuration directory provided: ', configDirectory)
   }
-
-
-};
+  return new Configuration({ configDirectory }, null);
+}

@@ -30,8 +30,11 @@ declare module 'graphql-schema-linter/lib/validator' {
 }
 
 declare module 'graphql-schema-linter/lib/configuration' {
+  import { ValidationContext, ASTKindToNode, Visitor, GraphQLError } from 'graphql';
+  export type Rule = (context: ValidationContext) => Visitor<ASTKindToNode>;
   export class Configuration {
     constructor(options: Configuration.ConfigurationOptions, stdinFd: string | null);
+    getRules(): Rule[]
   }
 }
 /*

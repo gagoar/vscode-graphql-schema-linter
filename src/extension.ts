@@ -1,33 +1,36 @@
 import * as vscode from 'vscode';
 import { decorationTypeOptions } from './decorationTypeOptions';
-import { getLinters } from './configuration';
+import { schemaLinterConfiguration } from './configuration';
 import { lintContent } from './lintContent';
 
 
 export async function activate(context: vscode.ExtensionContext) {
 	let activeEditor = vscode.window.activeTextEditor;
 	let timeout: NodeJS.Timer | undefined = undefined;
-	const linters = await getLinters();
 	const decorationType = vscode.window.createTextEditorDecorationType(decorationTypeOptions);
 
+	const configuration = schemaLinterConfiguration();
+
 	if (activeEditor) {
-		triggerUpdateDecorations();
+		triggerUpdateDecorations({ configuration });
 	}
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		activeEditor = editor;
 		if (editor) {
-			triggerUpdateDecorations();
+			triggerUpdateDecorations({ configuration });
 		}
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {
 		if (activeEditor && event.document === activeEditor.document) {
-			triggerUpdateDecorations();
+
+			triggerUpdateDecorations({ configuration });
 		}
 	}, null, context.subscriptions);
 
-	function triggerUpdateDecorations() {
+
+	function triggerUpdateDecorations({ configuration }: { configuration: ReturnType<schemaLinterConfiguration> }) {
 		if (timeout) {
 			clearTimeout(timeout);
 			timeout = undefined;
@@ -41,7 +44,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 		const content = activeEditor.document.getText();
 
-		const rangesToDecorate = lintContent({ content, linters, activeEditor });
+		const rangesToDecorate = lintContent({ content, configuration, activeEditor });
 
 		activeEditor.setDecorations(decorationType, rangesToDecorate);
 	}

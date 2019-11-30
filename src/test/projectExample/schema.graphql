@@ -1,0 +1,10 @@
+type Example {
+  # invalid
+  user_names: String
+  # invalid
+  Users: [String]
+  # valid
+  userName: String
+  # valid
+  _Users: String
+}
